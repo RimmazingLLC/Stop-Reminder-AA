@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>STOP - Command Center</title>
+    <style>
+        :root {
+            --bg-color: #070913;
+            --card-bg: #111827;
+            --danger-color: #f43f5e;
+            --text-color: #f3f4f6;
+            --accent-color: #8b5cf6;
+            --success-color: #10b981;
+            --border-color: #1f2937;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            text-align: center;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 420px;
+            background: var(--card-bg);
+            padding: 25px 20px;
+            border-radius: 24px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.6);
+            border: 1px solid var(--border-color);
+        }
+
+        h1 {
+            color: var(--danger-color);
+            font-size: 1.8rem;
+            margin-bottom: 5px;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+        }
+
+        .subtitle {
+            color: #9ca3af;
+            font-size: 0.9rem;
+            margin-bottom: 20px;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        .stat-card {
+            background: rgba(139, 92, 246, 0.05);
+            border: 1px solid rgba(139, 92, 246, 0.2);
+            padding: 12px;
+            border-radius: 14px;
+        }
+
+        .stat-value {
+            font-size: 1.4rem;
+            font-weight: bold;
+            color: var(--accent-color);
+        }
+
+        .stat-label {
+            font-size: 0.75rem;
+            color: #9ca3af;
+            margin-top: 4px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .badge-container {
+            background: rgba(16, 185, 129, 0.05);
+            border: 1px solid rgba(16, 185, 129, 0.2);
+            padding: 12px;
+            border-radius: 14px;
+            margin-bottom: 20px;
+        }
+
+        .badge-title {
+            font-size: 1rem;
+            font-weight: bold;
+            color: var(--success-color);
+        }
+
+        .btn {
+            width: 100%;
+            padding: 14px;
+            border: none;
+            border-radius: 12px;
+            font-size: 1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: transform 0.1s ease, opacity 0.2s;
+            margin-bottom: 12px;
+        }
+
+        .btn:active {
+            transform: scale(0.98);
+        }
+
+        .btn-danger {
+            background-color: var(--danger-color);
+            color: white;
+            animation: pulse-red 2s infinite;
+            font-size: 1.1rem;
+        }
+
+        .btn-secondary {
+            background-color: #1f2937;
+            color: var(--text-color);
+            border: 1px solid #374151;
+        }
+
+        .btn-success {
+            background-color: var(--success-color);
+            color: white;
+        }
+
+        /* Emergency Mode Screen */
+        #emergency-screen {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: #4c0519;
+            z-index: 100;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        #emergency-screen h1 {
+            color: #fff;
+            font-size: 2.2rem;
+            margin-bottom: 10px;
+        }
+
+        .timer-display {
+            font-size: 4rem;
+            font-weight: bold;
+            color: #fda4af;
+            margin: 15px 0;
+        }
+
+        .instruction {
+            font-size: 1.2rem;
+            color: #fff1f2;
+            margin-bottom: 25px;
+            font-weight: 500;
+        }
+
+        @keyframes pulse-red {
+            0% { box-shadow: 0 0 0 0 rgba(244, 63, 94, 0.7); }
+            70% { box-shadow: 0 0 0 15px rgba(244, 63, 94, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(244, 63, 94, 0); }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>Command Center</h1>
+        <div class="subtitle" id="date-started">Protecting your focus</div>
+
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-value" id="streak-count">0 Days</div>
+                <div class="stat-label">Current Streak</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="time-saved">0h</div>
+                <div class="stat-label">Time Reclaimed</div>
+            </div>
+        </div>
+
+        <div class="badge-container">
+            <div style="font-size: 0.75rem; color: #9ca3af; text-transform: uppercase;">Current Rank</div>
+            <div class="badge-title" id="badge-display">🌱 Just Starting</div>
+        </div>
+
+        <button class="btn btn-danger" onclick="triggerEmergency()">🚨 EMERGENCY URGE LOCKDOWN</button>
+        <button class="btn btn-secondary" onclick="resetStreak()">Reset Streak</button>
+    </div>
+
+    <!-- Emergency Lockdown Screen -->
+    <div id="emergency-screen">
+        <h1>HOLD YOUR GROUND</h1>
+        <div class="instruction" id="breathing-instruction">Breathe in slowly...</div>
+        <div class="timer-display" id="countdown-timer">60</div>
+        <p style="color: #fecdd3; max-width: 320px; font-size: 0.95rem; margin-bottom: 20px;">The impulse peaks and fades. Do not give away your control for a 5-second dopamine spike.</p>
+        <button class="btn btn-success" onclick="survivedUrge()" style="max-width: 300px;">I Survived the Urge</button>
+    </div>
+
+    <script>
+        // Data Handling
+        let streakData = JSON.parse(localStorage.getItem('streakData')) || { startDate: new Date().toISOString() };
+        
+        // Background Audio Keep-Alive Loop for Mobile Wrappers
+        let backgroundAudioCtx;
+        function initBackgroundEngine() {
+            try {
+                const AudioContext = window.AudioContext || window.webkitAudioContext;
+                backgroundAudioCtx = new AudioContext();
+                setInterval(() => {
+                    if (backgroundAudioCtx && backgroundAudioCtx.state === 'suspended') {
+                        backgroundAudioCtx.resume();
+                    }
+                }, 5000);
+            } catch(e) {
+                console.log("Audio background context not initialized");
+            }
+        }
+
+        window.addEventListener('click', () => {
+            if(!backgroundAudioCtx) initBackgroundEngine();
+        }, { once: true });
+
+        function updateStats() {
+            const start = new Date(streakData.startDate);
+            const now = new Date();
+            const diffTime = Math.abs(now - start);
+            const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+            const diffHours = Math.floor(diffTime / (1000 * 60 * 60));
+            
+            document.getElementById('streak-count').innerText = diffDays + (diffDays === 1 ? ' Day' : ' Days');
+            document.getElementById('date-started').innerText = 'Active since ' + start.toLocaleDateString();
+
+            const hoursSaved = diffHours + (diffDays * 1.5);
+            document.getElementById('time-saved').innerText = Math.floor(hoursSaved) + 'h';
+
+            document.getElementById('badge-display').innerText = getBadge(diffDays);
+        }
+
+        function getBadge(days) {
+            if (days >= 90) return "🌌 90+ Days: Legend of Self";
+            if (days >= 30) return "👑 30 Days: Master of Discipline";
+            if (days >= 14) return "⚔️ 14 Days: Iron Titan";
+            if (days >= 7) return "🛡️ 7 Days: One Week Warrior";
+            if (days >= 3) return "🔥 3 Days: Spark of Will";
+            if (days >= 1) return "🐣 1 Day: First Step Forward";
+            return "🌱 Day Zero - Building Momentum";
+        }
+
+        function resetStreak() {
+            if(confirm("Are you sure you want to reset your streak? Every reset is a lesson, but stay strong!")) {
+                streakData = { startDate: new Date().toISOString() };
+                localStorage.setItem('streakData', JSON.stringify(streakData));
+                updateStats();
+            }
+        }
+
+        updateStats();
+
+        // Emergency Intervention Logic
+        let timerInterval;
+        let alarmInterval;
+
+        function playAlarm() {
+            try {
+                const ctx = backgroundAudioCtx || new (window.AudioContext || window.webkitAudioContext)();
+                let osc = ctx.createOscillator();
+                let gain = ctx.createGain();
+                osc.type = 'sawtooth';
+                osc.frequency.setValueAtTime(180, ctx.currentTime);
+                gain.gain.setValueAtTime(0.08, ctx.currentTime);
+                osc.connect(gain);
+                gain.connect(ctx.destination);
+                osc.start();
+                
+                let toggle = false;
+                window.activeAlarmOsc = osc;
+                alarmInterval = setInterval(() => {
+                    toggle = !toggle;
+                    osc.frequency.setValueAtTime(toggle ? 350 : 140, ctx.currentTime);
+                }, 350);
+            } catch(e) {
+                console.log("Audio block prevented alarm");
+            }
+        }
+
+        function stopAlarm() {
+            clearInterval(alarmInterval);
+            if(window.activeAlarmOsc) {
+                try { window.activeAlarmOsc.stop(); } catch(e){}
+            }
+        }
+
+        function triggerEmergency() {
+            document.getElementById('emergency-screen').style.display = 'flex';
+            playAlarm();
+            
+            let timeLeft = 60;
+            const timerDisplay = document.getElementById('countdown-timer');
+            const instruction = document.getElementById('breathing-instruction');
+            timerDisplay.innerText = timeLeft;
+
+            let breathTimer = 0;
+
+            clearInterval(timerInterval);
+            timerInterval = setInterval(() => {
+                timeLeft--;
+                timerDisplay.innerText = timeLeft;
+
+                breathTimer = (breathTimer + 1) % 8;
+                if(breathTimer < 3) {
+                    instruction.innerText = "Breathe In Deeply...";
+                } else if(breathTimer < 5) {
+                    instruction.innerText = "Hold Your Focus...";
+                } else {
+                    instruction.innerText = "Exhale Slowly...";
+                }
+
+                if(timeLeft <= 0) {
+                    clearInterval(timerInterval);
+                    stopAlarm();
+                    document.getElementById('emergency-screen').style.display = 'none';
+                    handleVictory();
+                }
+            }, 1000);
+        }
+
+        function survivedUrge() {
+            clearInterval(timerInterval);
+            stopAlarm();
+            document.getElementById('emergency-screen').style.display = 'none';
+            handleVictory();
+        }
+
+        function handleVictory() {
+            alert("Victory! You broke the loop. Your brain is rewiring.");
+            if(confirm("Want a healthy hit of dopamine instead? Click OK to open a random inspiring article or tool.")) {
+                window.location.href = "https://en.wikipedia.org/wiki/Special:Random";
+            }
+        }
+    </script>
+</body>
+</html>
